@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "406914134275",
+    "project_id": "cs310-step4-deneme",
+    "storage_bucket": "cs310-step4-deneme.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406914134275:android:ad6e5363a82d500ab1b936",
+        "android_client_info": {
+          "package_name": "com.sergen.projedeneme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "406914134275-gbbcgvdtonel599pjnlueuimjrnk8fe6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRkjbsTcCVQnIUrivmmB5-8Q2tV8JADRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "406914134275-gbbcgvdtonel599pjnlueuimjrnk8fe6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
