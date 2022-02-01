@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 
 import "package:flutter/material.dart";
 import 'package:google_fonts/google_fonts.dart';
@@ -152,6 +153,329 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 1,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.green,
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await _userService.updateProfile(
+                  _profileImage!);
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.done,
+              size: 30.0,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+      body: Container(
+        padding: EdgeInsets.only(left: 16, top: 25, right: 16),
+        child: ListView(
+          children: [
+            Text(
+              "Settings",
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            Row(
+              children: [
+                Icon(
+                  Icons.person,
+                  color: Colors.green,
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  "Account Information",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            Divider(
+              height: 15,
+              thickness: 2,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Change Profil Picture",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: Colors.grey),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            TextButton(
+              onPressed: () => getImage(0),
+              child: _profileImage == null
+                  ? Icon(Icons.person)
+                  : Image.file(
+                _profileImage!,
+                height: 100,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                children: <Widget>[
+                  buildDisplayNameField(),
+                  buildBioField(),
+                ],
+              ),
+            ),
+            Center(
+              child: OutlineButton(
+                padding: EdgeInsets.symmetric(horizontal: 40),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                onPressed: () {},
+                child: TextButton.icon(
+                  onPressed: updateProfileData,
+                  icon: Icon(Icons.done, color: Colors.blue),
+                  label: Text(
+                    "Uptade Personel Informations",
+                    style: TextStyle(color: Colors.blue, fontSize: 10.0),
+                  ),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Icon(
+                  Icons.person,
+                  color: Colors.green,
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  "Account",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            Divider(
+              height: 15,
+              thickness: 2,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            buildchangepassOptionRow(context, "Change password"),
+            buildAccountOptionRow(context, "Delete account"),
+            buildAccountprivateOptionRow(context,"Change to priv/public"),
+            SizedBox(
+              height: 40,
+            ),
+            Center(
+              child: OutlineButton(
+                padding: EdgeInsets.symmetric(horizontal: 40),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                onPressed: () {},
+                child: TextButton.icon(
+                  onPressed: logout,
+                  icon: Icon(Icons.cancel, color: Colors.red),
+                  label: Text(
+                    "Logout",
+                    style: TextStyle(color: Colors.red, fontSize: 20.0),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  GestureDetector buildAccountprivateOptionRow(BuildContext context, String title) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(title),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      user.isPriv ? "Make Account Public" : "Make Account Private"
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Close")),
+                  TextButton(
+                      onPressed: () async {
+                        db.makeAccountPrivate(widget.currentUserId, !user.isPriv);
+                        setState(() {});
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(user.isPriv ? "Make Account Public" : "Make Account Private")),
+                ],
+              );
+            });
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  GestureDetector buildAccountOptionRow(BuildContext context, String title) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(title),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Which action do you want to perform?"),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Close")),
+                  TextButton(
+                      onPressed: () async {
+                        print("userclass userId: " + widget.currentUserId!);
+                        await db.deleteUser(widget.currentUserId!);
+                        await auth.deleteUser();
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Delete Account")),
+                ],
+              );
+            });
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  GestureDetector buildchangepassOptionRow(BuildContext context, String title) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(title),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Are you sure with changing \n The password"),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Close")),
+                  TextButton(
+                      onPressed: () async {
+                        print("changepass clicked");
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangePass(),
+                            ));
+                        //ChangePass(analytics: widget.analytics, observer: widget.observer);
+                      },
+                      child: Text("Yes")),
+                ],
+              );
+            });
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /*@override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
         actions: [
           IconButton(
             onPressed: () async {
@@ -301,7 +625,7 @@ class _EditProfileState extends State<EditProfile> {
             )),
       ),
     );
-  }
+  }*/
 }
 
 

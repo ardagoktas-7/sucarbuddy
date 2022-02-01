@@ -15,7 +15,7 @@ import 'package:projedeneme/widgets/progress.dart';
 import 'package:projedeneme/widgets/post.dart';
 import 'package:firebase_auth/firebase_auth.dart' as deneme;
 import 'package:provider/provider.dart';
-
+List followers2 =["1234"];
 class Profile extends StatefulWidget {
   final String? profileId;
 
@@ -30,6 +30,7 @@ class _ProfileState extends State<Profile> {
   String? userid = "";
   String? username ="";
   String? url ="";
+  bool? ispriv ;
   String postOrientation = "list";
   bool isLoading = false;
   int postCount = 0;
@@ -47,6 +48,7 @@ class _ProfileState extends State<Profile> {
     getFollowing();
     checkIfFollowing();
     getUser();
+    getUserProfileOwner();
   }
 
   getUser() async {
@@ -54,7 +56,13 @@ class _ProfileState extends State<Profile> {
     user = User.fromDocument(doc);
     userid = user?.id;
     username = user?.username;
-    url= user?.photoUrl;
+    url = user?.photoUrl;
+  }
+
+  getUserProfileOwner() async {
+    DocumentSnapshot doc = await usersRef.doc(widget.profileId).get();
+    user = User.fromDocument(doc);
+    ispriv = user?.isPriv;
   }
 
   checkIfFollowing() async {
@@ -70,11 +78,14 @@ class _ProfileState extends State<Profile> {
   }
 
   getFollowers() async {
+    List followingList =[];
     QuerySnapshot snapshot = await followersRef
         .doc(widget.profileId)
         .collection('userFollowers')
         .get();
     setState(() {
+      followingList = snapshot.docs.map((doc) => doc.id).toList();
+      followers2 = followingList;
       followerCount = snapshot.docs.length;
     });
   }
@@ -88,8 +99,6 @@ class _ProfileState extends State<Profile> {
       followingCount = snapshot.docs.length;
     });
   }
-
-
 
   getProfilePosts() async {
     setState(() {
@@ -168,54 +177,21 @@ class _ProfileState extends State<Profile> {
 
   buildProfileButton() {
     getUser();
-    print(userid);
     bool isProfileOwner = userid == widget.profileId;
     // viewing your own profile - should show edit profile button
     if (isProfileOwner) {
       return buildButton(text: "Edit Profile", function: editProfile);
-    } else if (isFollowing) {
+    } else if (followers2.contains(userid)) {
       return buildButton(
         text: "Unfollow",
         function: handleUnfollowUser,
       );
-    } else if (!isFollowing) {
+    } else if (!followers2.contains(userid)) {
       return buildButton(
         text: "Follow",
         function: handleFollowUser,
       );
     }
-  }
-
-  buildprivate(bool ispriv){
-    getUser();
-    bool? temp = false;
-    print(userid);
-    bool isProfileOwner = userid == widget.profileId;
-    if(isProfileOwner)
-      {
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Colors.blue,
-            ),
-            child: OutlinedButton(
-              onPressed: () async {
-                db.makeAccountPrivate(userid, ispriv);
-                setState(() {});
-              },
-              child: Center(
-                child: Text(
-                  ispriv ? "Make Account Public" : "Make Account Private",
-                  style: GoogleFonts.nunito(
-                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
   }
 
   handleUnfollowUser() {
@@ -256,6 +232,9 @@ class _ProfileState extends State<Profile> {
         doc.reference.delete();
       }
     });
+    setState(() {
+      followers2.remove(userid);
+    });
   }
 
   handleFollowUser() {
@@ -289,6 +268,9 @@ class _ProfileState extends State<Profile> {
       "userProfileImg": url,
       "timestamp": timestamp,
     });
+    setState(() {
+      followers2.add(userid);
+    });
   }
 
   istrue(){
@@ -298,8 +280,6 @@ class _ProfileState extends State<Profile> {
     else
       return false;
   }
-
-
 
   buildProfileHeader() {
     return FutureBuilder(
@@ -404,9 +384,43 @@ class _ProfileState extends State<Profile> {
         ),
       );
     }else if (postOrientation == "list") {
-      return Column(
-        children: posts,
-      );
+      if(ispriv != null){
+        if(ispriv == false){
+          return Column(
+            children: posts,
+          );
+        } else{
+          if(followers2.contains(userid)){
+            return Column(
+              children: posts,
+            );
+          } else{
+            return Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 20.0),
+                    child: Text(
+                      "This profile is a private profile \n You need to follow this user",
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        }
+      }else{
+        return Column(
+          children: posts,
+        );
+      }
     }
   }
 

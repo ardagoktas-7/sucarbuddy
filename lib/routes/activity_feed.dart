@@ -38,7 +38,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange,
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
       appBar: header(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
@@ -105,7 +105,7 @@ class ActivityFeedItem extends StatelessWidget {
   }
 
   configureMediaPreview(context) {
-    if (type == "like" || type == 'comment') {
+    if (type == "like" || type == 'comment' || type == 'chat') {
       mediaPreview = GestureDetector(
         onTap: () => showPost(context),
         child: Container(
@@ -132,7 +132,9 @@ class ActivityFeedItem extends StatelessWidget {
     } else if (type == 'follow') {
       activityItemText = "is following you";
     } else if (type == 'comment') {
-      activityItemText = '$username replied: $commentData';
+      activityItemText = 'replied: $commentData';
+    } else if(type == 'chat'){
+      activityItemText = 'write you: $commentData';
     } else {
       activityItemText = "Error: Unknown type '$type'";
     }

@@ -6,6 +6,8 @@ import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_6.dart';
 import 'package:projedeneme/routes/Feedview.dart';
+import 'package:projedeneme/model/user.dart' as deneme;
+import 'package:projedeneme/widgets/progress.dart';
 
 class ChatDetail extends StatefulWidget {
   final friendUid;
@@ -23,13 +25,27 @@ class _ChatDetailState extends State<ChatDetail> {
   final friendName;
   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
   var chatDocId;
+  String urlcontroller = "";
+  String idcontroller = "";
+  String usernamecontroller = "";
+  late deneme.User user;
   var _textController = new TextEditingController();
   _ChatDetailState(this.friendUid, this.friendName);
   @override
   void initState() {
     super.initState();
+    getUser();
     checkUser();
   }
+
+  getUser() async {
+    DocumentSnapshot doc = await usersRef.doc(currentUserId).get();
+    user = deneme.User.fromDocument(doc);
+    usernamecontroller = user.username;
+    idcontroller = user.id;
+    urlcontroller = user.photoUrl;
+  }
+
 
   void checkUser() async {
     await chats
@@ -64,6 +80,19 @@ class _ChatDetailState extends State<ChatDetail> {
     }).then((value) {
       _textController.text = '';
     });
+    getUser();
+    if(widget.friendUid != currentUserId)
+      {
+        activityFeedRef.doc(widget.friendUid).collection('feedItems').add({
+          "type": "chat",
+          "commentData": msg,
+          "timestamp": timestamp,
+          "postId": "",
+          "userId": idcontroller,
+          "username": usernamecontroller,
+          "userProfileImg": urlcontroller,
+        });
+      }
   }
 
   bool isSender(String friend) {
@@ -93,9 +122,7 @@ class _ChatDetailState extends State<ChatDetail> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: Text("Loading"),
-          );
+          return circularProgress();
         }
 
         if (snapshot.hasData) {

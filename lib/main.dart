@@ -89,6 +89,7 @@ class MyApp extends StatelessWidget {
       value: AuthService().user,
       initialData: null,
       child: MaterialApp(
+        title: "sucarbudy",
         navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
         //home: LoginSign(),

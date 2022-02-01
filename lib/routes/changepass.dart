@@ -147,7 +147,7 @@ class _ChangePassState extends State<ChangePass> {
             'CHANGE PASSWORD',
             style: blogText,
           ),
-          backgroundColor: const Color(0xFF1B263B),
+          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
           centerTitle: true,
           elevation: 0.0,
         ),
@@ -173,7 +173,7 @@ class _ChangePassState extends State<ChangePass> {
                         child: TextFormField(
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            fillColor: const Color(0xFF0D1B2A),
+                            fillColor: const Color(0xFF1467BA),
                             filled: true,
                             hintText: 'E-mail',
                             hintStyle: TextStyle(
@@ -219,7 +219,7 @@ class _ChangePassState extends State<ChangePass> {
                         child: TextFormField(
                           style: (TextStyle(color: const Color(0xFFE0E1DD))),
                           decoration: InputDecoration(
-                            fillColor: const Color(0xFF0D1B2A),
+                            fillColor: const Color(0xFF1467BA),
                             filled: true,
                             hintText: 'Old Password',
                             hintStyle: TextStyle(
@@ -267,7 +267,7 @@ class _ChangePassState extends State<ChangePass> {
                         child: TextFormField(
                           style: (TextStyle(color: const Color(0xFFE0E1DD))),
                           decoration: InputDecoration(
-                            fillColor: const Color(0xFF0D1B2A),
+                            fillColor: const Color(0xFF1467BA),
                             filled: true,
                             hintText: 'New Password',
                             hintStyle: TextStyle(
@@ -323,7 +323,7 @@ class _ChangePassState extends State<ChangePass> {
                         child: TextFormField(
                           style: (TextStyle(color: const Color(0xFFE0E1DD))),
                           decoration: InputDecoration(
-                            fillColor: const Color(0xFF0D1B2A),
+                            fillColor: const Color(0xFF1467BA),
                             filled: true,
                             hintText: 'Confirm New Password',
                             hintStyle: TextStyle(
@@ -406,7 +406,7 @@ class _ChangePassState extends State<ChangePass> {
             ),
           ),
         ),
-        backgroundColor: const Color(0xFF0D1B2A),
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
       );
     }
   }

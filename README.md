@@ -1,4 +1,4 @@
-# projedeneme
+# sucarbuddy
 
 A new Flutter project.
 

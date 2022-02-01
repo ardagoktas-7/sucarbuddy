@@ -17,16 +17,11 @@ import 'package:projedeneme/model/user.dart' as deneme;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 deneme.User? currentUser;
 
-
-
-
-
 class Welcome extends StatefulWidget {
   const Welcome({Key, key, required this.analytics, required this.observer}) : super(key: key);
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
-
 
   @override
   _WelcomeState createState() => _WelcomeState();
@@ -143,7 +138,11 @@ class _WelcomeState extends State<Welcome> {
                 ),
               ),
               SizedBox(height: 15,),
-              ElevatedButton(onPressed: buttonPressed, child: Text('Facebook')
+              ElevatedButton(
+                  onPressed: () {
+                    auth.signInWithFacebook();
+                  },
+                  child: Text('Facebook')
               ),
               SizedBox(height: 15,),
               ElevatedButton.icon(onPressed: () {

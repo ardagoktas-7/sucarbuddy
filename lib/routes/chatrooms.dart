@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:projedeneme/routes/timeline.dart';
+import 'package:projedeneme/widgets/progress.dart';
 
 
 class People extends StatelessWidget {
@@ -35,9 +36,7 @@ class People extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Text("Loading"),
-            );
+            return circularProgress();
           }
 
           if (snapshot.hasData) {

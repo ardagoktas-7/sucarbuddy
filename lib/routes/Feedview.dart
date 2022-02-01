@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:projedeneme/routes/profile.dart';
+import 'package:projedeneme/routes/recommended.dart';
 import 'package:projedeneme/routes/search.dart';
 import 'package:projedeneme/routes/upload.dart';
 import 'package:projedeneme/routes/chatrooms.dart';
@@ -15,6 +16,8 @@ import 'package:provider/provider.dart';
 import 'activity_feed.dart';
 import 'package:projedeneme/model/user.dart' as deneme;
 
+import 'overrall_search.dart';
+
 final firebase_storage.Reference storageRef = firebase_storage.FirebaseStorage.instance.ref();
 final usersRef = FirebaseFirestore.instance.collection('users');
 final commentsRef = FirebaseFirestore.instance.collection('comments');
@@ -23,6 +26,7 @@ final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
 final DateTime timestamp = DateTime.now();
 final postsRef = FirebaseFirestore.instance.collection('posts');
+final reportRef = FirebaseFirestore.instance.collection('reports');
 deneme.User? currentuser;
 
 class FeedView extends StatefulWidget {
@@ -88,9 +92,10 @@ class _FeedViewState extends State<FeedView>  {
         children: <Widget>[
           Timeline(currentUserId: firebaseUser?.uid),
           ActivityFeed(),
+          Recommended(),
           Upload(currentUserId: firebaseUser?.uid),
           People(),
-          Search(),
+          overall_search(),
           Profile(profileId: firebaseUser?.uid),
         ],
         controller: pageController,
@@ -104,6 +109,7 @@ class _FeedViewState extends State<FeedView>  {
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
             BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
+            BottomNavigationBarItem(icon: Icon(Icons.recommend)),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.photo_camera,

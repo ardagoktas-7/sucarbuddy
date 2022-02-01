@@ -10,12 +10,13 @@ import 'package:projedeneme/routes/timeline.dart' as deneme;
 import 'package:projedeneme/widgets/progress.dart';
 
 import 'custom_image.dart';
-
+List likes2 =["1234"];
 User? user;
 class Post extends StatefulWidget {
   final String postId;
   final String ownerId;
   final String username;
+  final String topic;
   final String location;
   final String description;
   final dynamic likes;
@@ -24,6 +25,7 @@ class Post extends StatefulWidget {
     required this.postId,
     required this.ownerId,
     required this.username,
+    required this.topic,
     required this.location,
     required this.description,
     required this.likes,
@@ -34,6 +36,7 @@ class Post extends StatefulWidget {
       postId: doc['postId'],
       ownerId: doc['ownerId'],
       username: doc['username'],
+      topic: doc['topic'],
       location: doc['location'],
       description: doc['description'],
       likes: doc['likes'],
@@ -60,6 +63,7 @@ class Post extends StatefulWidget {
     postId: this.postId,
     ownerId: this.ownerId,
     username: this.username,
+    topic: this.topic,
     location: this.location,
     description: this.description,
     likes: this.likes,
@@ -73,6 +77,7 @@ class _PostState extends State<Post> {
   final String postId;
   final String ownerId;
   final String username;
+  final String topic;
   final String location;
   final String description;
   int likeCount;
@@ -87,6 +92,7 @@ class _PostState extends State<Post> {
   void initState() {
     super.initState();
     getUser();
+    getLikes();
   }
 
 
@@ -104,6 +110,7 @@ class _PostState extends State<Post> {
     required this.postId,
     required this.ownerId,
     required this.username,
+    required this.topic,
     required this.location,
     required this.description,
     required this.likes,
@@ -129,6 +136,20 @@ class _PostState extends State<Post> {
 
   }
 
+  getLikes() async{
+    List likes3 =[];
+    QuerySnapshot snapshot = await postsRef
+        .doc(ownerId)
+        .collection('userPosts')
+        .doc(postId)
+        .collection('likes')
+        .get();
+    setState(() {
+      likes3 = snapshot.docs.map((doc) => doc.id).toList();
+      likes2 = likes3;
+    });
+  }
+
   buildPostHeader() {
     return FutureBuilder(
       future: usersRef.doc(ownerId).get(),
@@ -152,7 +173,7 @@ class _PostState extends State<Post> {
               ),
             ),
           ),
-          subtitle: Text(location),
+          subtitle: Text(topic),
           trailing: IconButton(
             onPressed: () => handleDelete(),
             icon: Icon(Icons.delete),
@@ -161,6 +182,35 @@ class _PostState extends State<Post> {
       },
     );
   }
+
+  buildPostHeader2() {
+    return FutureBuilder(
+      future: usersRef.doc(ownerId).get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return circularProgress();
+        }
+        User user = User.fromDocument(snapshot.data as DocumentSnapshot<Object?>);
+        return Row(
+          mainAxisAlignment : MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.car_repair,
+              color: Colors.blue,
+            ),
+            SizedBox(
+              width: 8,
+            ),
+            Text(
+              location,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold,fontStyle: FontStyle.italic),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   handleLikePost() {
     getUser();
     bool _isLiked = likes[currentUserId] == true;
@@ -230,7 +280,7 @@ class _PostState extends State<Post> {
   }
 
   reShare(
-      {required String location, required String description,required String postId, required String ownerId, required String username}) {
+      {required String location, required String description,required String postId, required String ownerId, required String username,required String topic}) {
     postsRef
         .doc(currentUserId)
         .collection("userPosts")
@@ -242,9 +292,33 @@ class _PostState extends State<Post> {
       "mediaUrl": "",
       "description": description,
       "location": location,
+      "topic":  topic,
       "timestamp": timestamp,
       "likes": {},
     });
+  }
+
+  createReportInFirestore(
+      {required String location,required String description,required String postId, required String ownerId, required String username,required String topic}) {
+    reportRef
+        .doc(postId)
+        .set({
+      "postId": postId,
+      "ownerId": currentUserId,
+      "username": username,
+      "topic": topic,
+      "description": description,
+      "location": location,
+      "timestamp": timestamp,
+      "likes": {},
+    });
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Post Reported"),
+          );
+        });
   }
 
   report(String? currentUserId)
@@ -270,7 +344,7 @@ class _PostState extends State<Post> {
             GestureDetector(
               onTap: handleLikePost,
               child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
+                (likes[currentUserId] == true) ? Icons.favorite : Icons.favorite_border,
                 size: 28.0,
                 color: Colors.pink,
               ),
@@ -296,6 +370,7 @@ class _PostState extends State<Post> {
                 postId: postId,
                 ownerId: ownerId,
                 username: username,
+                topic: topic,
               ),
               child: Icon(
                 Icons.share,
@@ -305,7 +380,14 @@ class _PostState extends State<Post> {
             ),
             Padding(padding: EdgeInsets.only(right: 210.0)),
             GestureDetector(
-              onTap: () => report(currentUserId),
+              onTap: () => createReportInFirestore(
+                location: location,
+                description: description,
+                postId: postId,
+                ownerId: ownerId,
+                username: username,
+                topic: topic,
+              ),
               child: Icon(
                 Icons.report,
                 size: 28.0,
@@ -351,12 +433,13 @@ class _PostState extends State<Post> {
   @override
   Widget build(BuildContext context) {
     getUser();
+    print(likes2);
     isLiked = (likes[currentUserId] == true);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         buildPostHeader(),
+        buildPostHeader2(),
         buildPostFooter()
       ],
     );
